@@ -67,11 +67,11 @@
 
     @media screen and (max-width: 768px) {
       .main{
-        border-radius: 0px;
+        border-radius: 10px;
       }
 
       .displayradius{
-        border-radius: 0px;
+        border-radius: 0px 0px 10px 10px;
       }
     }
 
@@ -98,7 +98,7 @@
 
   </style>
 </head>
-<body class="position-absolute gap-3 mx-auto d-flex flex-column justify-content-center top-0 bottom-0 start-0 end-0 hstack h-100">
+<body class="position-absolute gap-3 p-3 mx-auto d-flex flex-column justify-content-center top-0 bottom-0 start-0 end-0 hstack h-100">
   <div class="col-md-8 mx-auto d-md-flex gap-2 bg-white main shadow-lg">
     <form id="myform" class="flex-1 w-100 p-4 ">
       <div class="d-flex justify-content-between mb-4">
@@ -146,7 +146,7 @@
           <span>Repayment</span>
         </div>
         <div class="border w-100 d-flex p-2 rounded gap-2 radiosalect hstack">
-          <input type="radio" id="interestOnly" name="type" class="radioselect" value="total interest" radio-input="type"/> 
+          <input type="radio" id="interestOnly" name="type" class="radioselect" value="interest" radio-input="type"/> 
           <span>Interest Only</span>
         </div>
         <span radio-error="type"></span>
@@ -216,18 +216,18 @@
         };
       });
       
-        if(data.amount && data.rate && data.term){
+        if(data.amount && data.rate && data.term && selecOpt){
           const mr = (data.rate/100)/12;
           const n = data.term*12;
           const monthlyPayment = data.amount*(mr * Math.pow(1 + mr,n))/(Math.pow(1 + mr,n)-1); 
           const totalOverTerm = monthlyPayment*(data.term*12);
-          const totalInterest = totalOverTerm - data.amount;
+          const totalInterest = (totalOverTerm - data.amount)/n;
           
           if(selecOpt.value == 'repayments'){
             document.getElementById('optionview').textContent = `Your monthly ${selecOpt.value}`;
             document.getElementById('monthly').textContent = monthlyPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           }else{
-            document.getElementById('optionview').textContent = `Your ${selecOpt.value}`;
+            document.getElementById('optionview').textContent = `Your monthly ${selecOpt.value}`;
             document.getElementById('monthly').textContent = totalInterest.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           }
           document.getElementById('totalOverTerm').textContent = totalOverTerm.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -256,6 +256,23 @@
       document.getElementById('myform').reset();
       document.getElementById('currentview').classList.remove('d-none');
       document.getElementById('calculatedDisplay').classList.add('d-none');
+    });
+
+    document.querySelectorAll('[type="text"]').forEach(input =>{
+        input.addEventListener('keydown',(e)=>{
+          const key = e.key;
+
+          // Allow control keys like backspace, delete, arrow keys, tab, etc.
+          if (
+            key === "Backspace" || key === "Delete" || key === "ArrowLeft" ||
+            key === "ArrowRight" || key === "Tab"
+          ) {
+            return;
+          }
+
+          // Block input if key is not a digit
+          if (!/^\d$/.test(key)) e.preventDefault();
+        });
     });
   </script>
 </body>
